@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karahindiba</title>
+<style>
+  /* ---- Inter Tight (yerel) ---- */
+  @font-face{
+    font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;
+    src:url(fonts/inter-tight-latin-400-normal.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;
+    src:url(fonts/inter-tight-latin-ext-400-normal.woff2) format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face{
+    font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;
+    src:url(fonts/inter-tight-latin-600-normal.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;
+    src:url(fonts/inter-tight-latin-ext-600-normal.woff2) format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face{
+    font-family:'Inter Tight';font-style:normal;font-weight:700;font-display:swap;
+    src:url(fonts/inter-tight-latin-700-normal.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Inter Tight';font-style:normal;font-weight:700;font-display:swap;
+    src:url(fonts/inter-tight-latin-ext-700-normal.woff2) format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+
+  /* ---- özel dil seçici ---- */
+  .langsel{position:relative;flex:0 0 auto}
+  .langsel-btn{
+    display:flex;align-items:center;gap:6px;cursor:pointer;
+    border:1px solid;border-radius:100px;background:transparent;
+    font:inherit;font-size:11px;font-weight:600;letter-spacing:.06em;
+    padding:6px 11px;transition:.16s;
+  }
+  .langsel .chev{width:9px;height:9px;fill:none;stroke-width:1.8;
+    stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+  .langsel.open .chev{transform:rotate(180deg)}
+
+  .langsel-panel{
+    position:absolute;top:calc(100% + 7px);z-index:40;min-width:150px;
+    background:var(--paper);border:1px solid var(--hair);border-radius:14px;
+    padding:5px;box-shadow:0 10px 30px rgba(59,10,18,.16);
+    display:flex;flex-direction:column;gap:1px;
+    animation:selIn .16s cubic-bezier(.2,.9,.3,1);
+  }
+  @keyframes selIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+  .langsel-panel[hidden]{display:none}
+  .langsel-panel button{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    border:none;background:transparent;cursor:pointer;text-align:start;
+    font:inherit;font-size:13.5px;color:var(--ink);
+    padding:9px 11px;border-radius:10px;transition:.13s;width:100%;
+  }
+  .langsel-panel button:hover{background:rgba(59,10,18,.07)}
+  .langsel-panel button[aria-selected="true"]{background:var(--maroon);color:var(--cream)}
+  .langsel-panel .lc{
+    font-size:9.5px;font-weight:700;letter-spacing:.14em;opacity:.5;
+  }
+  /* koyu zemin (üst çubuk) */
+  .langsel.on-dark .langsel-btn{border-color:rgba(247,233,160,.5);color:var(--lemon)}
+  .langsel.on-dark .chev{stroke:var(--lemon)}
+  .langsel.on-dark .langsel-btn:hover{background:rgba(247,233,160,.14)}
+  /* açık zemin (lobi) */
+  .langsel.on-light{margin:0 auto 16px;width:max-content}
+  .langsel.on-light .langsel-btn{border-color:var(--hair);color:var(--maroon);padding:8px 14px;font-size:12px}
+  .langsel.on-light .chev{stroke:var(--maroon)}
+  .langsel.on-light .langsel-btn:hover{background:rgba(59,10,18,.06)}
+  /* panel hizası: LTR'de sağa, RTL'de sola yasla */
+  .langsel-panel{inset-inline-end:0}
+  .langsel.on-light .langsel-panel{inset-inline-start:50%;inset-inline-end:auto;transform:translateX(-50%)}
+  [dir="rtl"] .langsel.on-light .langsel-panel{transform:translateX(50%)}
+
+  /* ---- Baskervville (yerel, üçüncü taraf isteği yok) ---- */
+  @font-face{
+    font-family:'Baskervville';font-style:normal;font-weight:400;font-display:swap;
+    src:url(fonts/baskervville-latin-400-normal.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Baskervville';font-style:normal;font-weight:400;font-display:swap;
+    src:url(fonts/baskervville-latin-ext-400-normal.woff2) format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face{
+    font-family:'Baskervville';font-style:italic;font-weight:400;font-display:swap;
+    src:url(fonts/baskervville-latin-400-italic.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Baskervville';font-style:italic;font-weight:400;font-display:swap;
+    src:url(fonts/baskervville-latin-ext-400-italic.woff2) format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+  @font-face{
+    font-family:'Baskervville';font-style:normal;font-weight:700;font-display:swap;
+    src:url(fonts/baskervville-latin-700-normal.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  }
+  @font-face{
+    font-family:'Baskervville';font-style:normal;font-weight:700;font-display:swap;
+    src:url(fonts/baskervville-latin-ext-700-normal.woff2) format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+  }
+
+  :root{
+    /* brand guide palette */
+    --cream:#FFFFFF;      /* page */
+    --paper:#FFFFFF;
+    --maroon:#3B0A12;     /* deep maroon */
+    --clay:#9A8F8B;
+    --lemon:#F7E9A0;      /* soft yellow card */
+    --peri:#C8D2F7;       /* periwinkle card */
+    --blush:#F7EBE1;      /* warm cream card */
+    --ink:#2A1216;
+    --hair:#E7E2DE;
+    --faint:#CFC8C4;
+    --dir:46px;
+    --gap:5px;
+    --cellr:9px;
+    --dirr:13px;
+    --pad:9px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter Tight',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,'Hiragino Sans','Yu Gothic UI','Noto Sans JP','Noto Sans Arabic','Segoe UI Historic',sans-serif;
+    background-color:var(--cream);color:var(--ink);
+    background-image:radial-gradient(circle, rgba(59,10,18,.2) 1.1px, transparent 1.1px);
+    background-size:22px 22px;
+    min-height:100vh;min-height:100dvh;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px 16px;-webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .serif{font-family:'Baskervville','Iowan Old Style',Georgia,'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','Noto Naskh Arabic',serif}
+  .label{
+    font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--clay);font-weight:600;text-align:center;
+  }
+
+  .shell{width:100%;max-width:400px;display:flex;flex-direction:column;gap:13px}
+
+  /* ---- header ---- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:transparent;padding:0;align-self:stretch;margin-bottom:18px;width:100%;
+  }
+  .wordmark{
+    background:transparent;border-radius:0;padding:0;
+    display:flex;align-items:center;
+  }
+  .wordmark #gameTitle{display:none}
+  .logo{width:34px;height:34px;flex:0 0 auto;fill:none;
+    stroke:var(--maroon);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .logo .ray{stroke-width:1}
+  .logo .stem{stroke-width:1.4}
+  .logo .dot{fill:var(--maroon);stroke:none}
+  .topright{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .tools{
+    display:flex;align-items:center;gap:6px;
+    background:var(--maroon);border-radius:100px;padding:6px 7px;
+  }
+  .icon-btn{
+    width:26px;height:26px;border-radius:50%;border:1px solid rgba(247,233,160,.5);
+    background:transparent;color:var(--lemon);font:inherit;font-size:12px;
+    cursor:pointer;display:grid;place-items:center;transition:.15s;flex:0 0 auto;
+  }
+  .icon-btn:hover{background:var(--lemon);color:var(--maroon)}
+
+  .rule{display:none}
+
+  /* ---- turn tabs ---- */
+  .players{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;justify-content:center}
+  .blk-turn .label{margin-bottom:12px}
+  .blk-wind{margin-top:4px}
+  .pcard{
+    font-family:'Baskervville','Iowan Old Style',Georgia,'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','Noto Naskh Arabic',serif;
+    font-size:clamp(28px,8.4vw,40px);line-height:1;letter-spacing:-.025em;font-weight:700;
+    color:var(--faint);background:none;border:none;padding:0;cursor:default;
+    transition:color .25s;position:relative;white-space:nowrap;
+  }
+  .pcard .prole,.pcard .star{display:none}
+  .pcard.act{color:var(--maroon)}
+  .pcard.win{color:var(--maroon)}
+  .pcard.win::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1.5px;background:var(--maroon)}
+
+  /* ---- status ---- */
+  .statusrow{display:none}
+  .status{font-size:13px;line-height:1.35;color:var(--ink);max-width:34ch}
+  .status b{font-weight:600}
+  .chip{display:none}
+  .motiv{
+    font-family:'Baskervville','Iowan Old Style',Georgia,'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','Noto Naskh Arabic',serif;font-style:italic;
+    font-size:12.5px;color:var(--clay);min-height:16px;
+  }
+  .arrow{text-align:center;color:var(--maroon);font-size:16px;line-height:1;opacity:.75}
+
+  /* ---- board: çerçeveye tam oturur ---- */
+  .field{background:var(--blush);background-clip:padding-box;border:none;padding:var(--pad);
+    border-radius:calc(var(--cellr) + var(--pad))}
+  .board{
+    display:grid;
+    gap:var(--gap);width:100%;aspect-ratio:1;position:relative;touch-action:manipulation;
+  }
+  .cell{
+    background:var(--paper);border:none;border-radius:var(--cellr);
+    display:grid;place-items:center;position:relative;min-width:0;min-height:0;
+    transition:background .16s,border-color .16s;
+  }
+  .board.active .cell.empty{cursor:pointer}
+  @media(hover:hover){
+    .board.active .cell.empty:hover{background:var(--lemon)}
+  }
+  .cell.locked{background:rgba(255,255,255,.42)}
+  .cell.flash{background:var(--lemon)}
+  .cell .ic{width:74%;height:74%;display:block}
+  .ic{fill:none;stroke:var(--maroon);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .ic .ray{stroke-width:1}
+  .ic .stem{stroke-width:1.5}
+  .ic .dot{fill:var(--maroon);stroke:none}
+  .bloom{position:absolute;inset:0;display:grid;place-items:center;animation:bloomIn .35s cubic-bezier(.2,1.4,.4,1)}
+  .bloom.sway{animation:sway .6s ease-in-out}
+  @keyframes bloomIn{0%{transform:scale(0) rotate(-18deg)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+  @keyframes sway{
+    0%{transform:rotate(0)}30%{transform:rotate(var(--swayDeg,9deg))}
+    60%{transform:rotate(calc(var(--swayDeg,9deg) * -.35))}100%{transform:rotate(0)}
+  }
+  .seed{position:absolute;width:40%;height:40%;animation:pop .25s ease}
+  .seed .ic{width:100%;height:100%;stroke-width:1.4}
+  .seed.fly{animation:seedFly .5s cubic-bezier(.25,.7,.35,1) both;animation-delay:var(--delay,0s)}
+  @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+  @keyframes seedFly{
+    0%{opacity:0;transform:translate(var(--fx,0),var(--fy,0)) scale(.4) rotate(-40deg)}
+    25%{opacity:1}
+    100%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}
+  }
+
+  /* ---- compass ---- */
+  .compass{
+    display:grid;grid-template-columns:repeat(3,var(--dir));grid-template-rows:repeat(3,var(--dir));
+    gap:6px;justify-content:center;
+    background:var(--peri);padding:var(--pad);width:max-content;margin:0 auto;
+    border-radius:calc(var(--dirr) + var(--pad));
+  }
+  .dir{
+    background:var(--paper);border:none;border-radius:var(--dirr);
+    display:grid;place-items:center;font-size:calc(var(--dir)*.4);color:var(--ink);
+    transition:.15s;user-select:none;-webkit-user-select:none;
+  }
+  .dir.c{background:transparent;display:grid;place-items:center}
+  .dir.c .ic{width:62%;height:62%;stroke:var(--maroon);stroke-width:2}
+  .dir.c .ic .dot{fill:var(--maroon)}
+  .compass.on .dir:not(.c):not(.x){cursor:pointer;color:var(--maroon);box-shadow:inset 0 0 0 1.5px var(--maroon)}
+  @media(hover:hover){
+    .compass.on .dir:not(.c):not(.x):hover{background:var(--maroon);color:var(--cream)}
+  }
+  .compass.on .dir:not(.c):not(.x):active{transform:scale(.93)}
+  .compass:not(.on) .dir:not(.c){opacity:.35}
+  .dir.x{background:rgba(255,255,255,.45);color:var(--faint)}
+
+  /* ---- stats ---- */
+
+  /* ---- bottom ---- */
+  .bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:0}
+  .result{
+    font-family:'Baskervville','Iowan Old Style',Georgia,'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','Noto Naskh Arabic',serif;
+    font-size:14px;color:var(--maroon);min-height:0;flex:0 1 auto;
+  }
+  button.reset{
+    border:1px solid var(--maroon);background:var(--maroon);color:var(--cream);
+    font:inherit;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    padding:10px 18px;border-radius:100px;cursor:pointer;transition:.15s;flex:0 0 auto;
+  }
+  button.reset:hover{background:transparent;color:var(--maroon)}
+  button.reset:active{transform:scale(.97)}
+
+  /* ---- modals ---- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(24,24,24,.34);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:20;
+  }
+  .overlay.show{display:flex;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{
+    background:var(--paper);border:1px solid var(--hair);border-radius:26px;
+    max-width:400px;width:100%;padding:22px 20px;max-height:86vh;overflow-y:auto;
+    animation:rise .25s cubic-bezier(.2,.9,.3,1)
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .modal h2{
+    font-family:'Baskervville','Iowan Old Style',Georgia,'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','Noto Naskh Arabic',serif;
+    font-size:24px;margin-bottom:6px;font-weight:400;letter-spacing:-.015em;color:var(--maroon);
+  }
+  .modal .lead{font-size:13px;color:var(--clay);margin-bottom:16px;line-height:1.5}
+  .step{display:flex;gap:10px;margin-bottom:11px;align-items:flex-start}
+  .step .n{
+    flex:0 0 auto;width:19px;height:19px;border-radius:50%;
+    border:1px solid var(--maroon);color:var(--maroon);background:transparent;
+    font-size:10px;font-weight:700;display:grid;place-items:center;margin-top:1px
+  }
+  .step .t{font-size:13px;line-height:1.5}
+  .step .t b{font-weight:600}
+  .modal .win-line{
+    margin-top:13px;padding:13px 15px;background:var(--lemon);border-radius:16px;
+    font-size:12.5px;line-height:1.5;
+  }
+  .modal .close{
+    margin-top:18px;width:100%;border:1px solid var(--maroon);background:var(--maroon);color:var(--cream);
+    font:inherit;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    padding:12px;border-radius:100px;cursor:pointer;transition:.15s
+  }
+  .modal .close:hover{background:transparent;color:var(--maroon)}
+
+  .win-modal{text-align:center;max-width:330px}
+  .win-art{display:grid;place-items:center;margin-bottom:10px}
+  .win-art .ic{width:74px;height:74px;stroke-width:1.9;animation:winPop .5s cubic-bezier(.2,1.5,.4,1) both}
+  @keyframes winPop{0%{transform:scale(0)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+  .win-sub{font-size:13px;color:var(--clay);line-height:1.5}
+
+  /* ---- fluff + confetti ---- */
+  .fluff{
+    position:absolute;width:10px;height:10px;pointer-events:none;z-index:5;
+    left:var(--x0);top:var(--y0);margin:-5px 0 0 -5px;opacity:0;
+    animation:fluffFly var(--dur,.9s) cubic-bezier(.2,.6,.3,1) var(--delay,0s) both;
+  }
+  .fluff .ic{width:100%;height:100%;stroke-width:2}
+  @keyframes fluffFly{
+    0%{opacity:0;left:var(--x0);top:var(--y0);transform:scale(.4) rotate(0)}
+    18%{opacity:1}
+    100%{opacity:0;left:var(--x1);top:var(--y1);transform:scale(1) rotate(var(--spin,180deg))}
+  }
+  .confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+  .confetti{
+    position:absolute;top:-24px;opacity:0;
+    animation:confettiFall var(--cdur,2.6s) linear var(--cdelay,0s) forwards;
+  }
+  .confetti .ic{width:100%;height:100%;stroke-width:1.8}
+  @keyframes confettiFall{
+    0%{opacity:0;transform:translateY(-10vh) translateX(0) rotate(0)}
+    8%{opacity:1}
+    100%{opacity:0;transform:translateY(108vh) translateX(var(--cx,40px)) rotate(var(--crot,420deg))}
+  }
+
+  /* ============ LAYOUT ============ */
+  .shell{align-items:stretch}
+  .blk-turn{text-align:center}
+  .blk-turn .label{margin-bottom:12px}
+  .players{justify-content:center}
+  .playrow{
+    display:flex;align-items:center;justify-content:center;
+    gap:clamp(12px,2vw,22px);width:100%;
+  }
+  .blk-wind{margin:0;flex:0 0 auto}
+  .field{flex:0 0 auto}
+  .board{width:var(--boardw,100%)}
+  .bar{justify-content:center}
+
+  /* telefon + tablet: alt alta, tahta üstte — daima ekrana sığar
+     tahta hem genişliğe hem yüksekliğe bağlı ölçeklenir */
+  @media(max-width:1023px){
+    .shell{gap:11px;max-width:min(440px,92vw)}
+    .playrow{flex-direction:column;gap:14px;align-items:center}
+    .field{order:1;width:auto}
+    .blk-wind{order:2}
+    :root{
+      --boardw:min(88vw, 440px, calc(100vh - 330px));
+      --dir:min(13vw, 48px, calc((100vh - 330px) / 7.6));
+      --pad:7px;
+    }
+  }
+  @media(max-width:1023px) and (max-height:760px){
+    .shell{gap:8px}
+    .blk-turn .label{display:none}
+    :root{
+      --boardw:min(86vw, 400px, calc(100vh - 290px));
+      --dir:min(12vw, 42px, calc((100vh - 290px) / 7.6));
+      --pad:5px;
+    }
+    .pcard{font-size:clamp(21px,6.2vw,28px)}
+  }
+  @media(max-width:1023px) and (max-height:640px){
+    .shell{gap:6px}
+    :root{
+      --boardw:min(80vw, 340px, calc(100vh - 250px));
+      --dir:min(10.5vw, 36px, calc((100vh - 250px) / 7.6));
+    }
+    .pcard{font-size:clamp(18px,5.6vw,23px)}
+  }
+  @media(max-width:340px){
+    .pcard{font-size:clamp(17px,5.4vw,21px)}
+  }
+
+  /* desktop */
+  @media(min-width:1024px){
+    body{padding:40px}
+    .shell{max-width:1000px;gap:26px}
+    :root{--boardw:470px;--dir:74px;--gap:6px;--pad:9px}
+    .logo{width:40px;height:40px}
+    .pcard{font-size:44px}
+    .blk-turn .label{margin-bottom:16px}
+    .playrow{gap:56px;justify-content:center}
+    .field{order:1}
+    .blk-wind{order:2}
+  }
+
+  /* kısa yatay */
+  @media(max-height:520px) and (orientation:landscape){
+    body{padding:8px}
+    .shell{max-width:760px;gap:7px}
+    .playrow{flex-direction:row;gap:28px}
+    .field{order:1;width:auto}
+    .blk-wind{order:2}
+    :root{--boardw:min(46vh,190px);--dir:30px;--pad:5px;--cellr:7px;--dirr:8px}
+    .blk-turn .label{display:none}
+    .pcard{font-size:21px}
+    .logo{width:26px;height:26px}
+    button.reset{padding:8px 15px;font-size:10px}
+    .topbar{margin-bottom:4px}
+  }
+
+  /* ---- lobi / online ---- */
+  .lobby{max-width:380px;text-align:center}
+  .lobby h2{margin-bottom:6px}
+  .lobby .lead{margin-bottom:20px}
+  .mode-btn{
+    width:100%;border:1.5px solid var(--maroon);background:transparent;color:var(--maroon);
+    font:inherit;font-size:14px;font-weight:600;padding:14px;border-radius:100px;
+    cursor:pointer;transition:.15s;margin-bottom:10px;
+  }
+  .mode-btn:hover{background:var(--maroon);color:var(--cream)}
+  .mode-btn:disabled{
+    opacity:.4;cursor:not-allowed;
+    background:transparent;color:var(--maroon);border-color:var(--hair);
+  }
+  .mode-btn.primary:disabled{background:var(--maroon);color:var(--cream);border-color:var(--maroon)}
+  .mode-btn.primary{background:var(--maroon);color:var(--cream)}
+  .mode-btn.primary:hover{opacity:.86}
+  .code-in{
+    width:100%;border:1.5px solid var(--hair);background:var(--paper);border-radius:14px;
+    padding:13px 14px;font-family:ui-monospace,Menlo,monospace;font-size:20px;
+    letter-spacing:.28em;text-align:center;text-transform:uppercase;color:var(--ink);
+    margin-bottom:10px;
+  }
+  .code-in:focus{outline:none;border-color:var(--maroon)}
+  .roomcode{
+    font-family:ui-monospace,Menlo,monospace;font-size:30px;letter-spacing:.3em;
+    color:var(--maroon);background:var(--lemon);border-radius:16px;padding:16px 10px;
+    margin:6px 0 14px;user-select:all;
+  }
+  .sizes{display:flex;gap:6px;margin-bottom:16px}
+  .sizes button{
+    flex:1;border:1.5px solid var(--hair);background:transparent;color:var(--clay);
+    font:inherit;font-size:13px;font-weight:600;padding:11px 4px;border-radius:100px;
+    cursor:pointer;transition:.15s;
+  }
+  .sizes button:hover{border-color:var(--maroon);color:var(--maroon)}
+  .sizes button.on{background:var(--maroon);border-color:var(--maroon);color:var(--cream)}
+  .static-note{
+    font-size:11.5px;line-height:1.5;color:var(--clay);
+    margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
+  }
+  .lobby .err{color:#B3261E;font-size:12.5px;min-height:16px;margin-bottom:6px}
+  .lobby .hint{font-size:12.5px;color:var(--clay);line-height:1.5;margin-top:10px}
+  .conn[hidden]{display:none}
+  .conn{
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);
+  }
+  .conn .dot-i{width:7px;height:7px;border-radius:50%;background:var(--clay)}
+  .conn.live .dot-i{background:#1E8E3E}
+  .conn.wait .dot-i{background:#E8A33D}
+  .youare{font-size:12px;color:var(--clay);margin-top:2px}
+  .locked{opacity:.55;pointer-events:none}
+
+  /* ---- RTL (Arapça) ---- */
+  [dir="rtl"] .board,
+  [dir="rtl"] .compass,
+  [dir="rtl"] .playrow,
+  [dir="rtl"] .roomcode,
+  [dir="rtl"] .code-in{direction:ltr}
+  [dir="rtl"] .status,
+  [dir="rtl"] .motiv,
+  [dir="rtl"] .lobby,
+  [dir="rtl"] .modal{text-align:right}
+  [dir="rtl"] .lobby,
+  [dir="rtl"] .win-modal{text-align:center}
+  [dir="rtl"] .step{flex-direction:row-reverse;text-align:right}
+  [dir="rtl"] .label{letter-spacing:0}
+  [dir="rtl"] .wordmark{transform:scaleX(1)}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+  <div class="shell">
+    <div class="topbar">
+      <div class="wordmark">
+        <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><path class="stem" d="M20 13.5c.6 5.4 1.2 8.4.4 12.2-.5 2.6-1.4 5.4-1.6 12.3"/><path class="ray" d="M20 10.9L20 3.3M21 11.1L23.9 4.1M21.8 11.7L27.2 6.3M22.4 12.6L29.9 9.5M22.6 13.5L30.7 13.5M22.4 14.4L29.9 17.5M21.8 15.3L27.2 20.7M21 15.9L23.9 22.9M20 16.1L20 23.7M19 15.9L16.1 22.9M18.2 15.3L12.8 20.7M17.6 14.4L10.1 17.5M17.4 13.5L9.3 13.5M17.6 12.6L10.1 9.5M18.2 11.7L12.8 6.3M19 11.1L16.1 4.1"/><circle class="dot" cx="20" cy="2.1" r="1"/><circle class="dot" cx="24.4" cy="3" r="1"/><circle class="dot" cx="28.1" cy="5.4" r="1"/><circle class="dot" cx="30.5" cy="9.1" r="1"/><circle class="dot" cx="31.4" cy="13.5" r="1"/><circle class="dot" cx="30.5" cy="17.9" r="1"/><circle class="dot" cx="28.1" cy="21.6" r="1"/><circle class="dot" cx="24.4" cy="24" r="1"/><circle class="dot" cx="20" cy="24.9" r="1"/><circle class="dot" cx="15.6" cy="24" r="1"/><circle class="dot" cx="11.9" cy="21.6" r="1"/><circle class="dot" cx="9.5" cy="17.9" r="1"/><circle class="dot" cx="8.6" cy="13.5" r="1"/><circle class="dot" cx="9.5" cy="9.1" r="1"/><circle class="dot" cx="11.9" cy="5.4" r="1"/><circle class="dot" cx="15.6" cy="3" r="1"/></svg>
+        <span id="gameTitle">Karahindiba</span>
+      </div>
+      <div class="topright">
+        <button class="reset" id="reset">Yeniden başla</button>
+        <div class="tools">
+          <button class="icon-btn" id="howBtn" aria-label="Nasıl oynanır">?</button>
+          <span id="howLabel" hidden></span>
+          <div class="langsel on-dark" id="langTop"><button class="langsel-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language"><span class="langsel-cur">EN</span><svg class="chev" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5"/></svg></button><div class="langsel-panel" role="listbox" hidden><button type="button" role="option" data-l="en" aria-selected="true"><span class="ln">English</span><span class="lc">EN</span></button><button type="button" role="option" data-l="tr"><span class="ln">Türkçe</span><span class="lc">TR</span></button><button type="button" role="option" data-l="fr"><span class="ln">Français</span><span class="lc">FR</span></button><button type="button" role="option" data-l="de"><span class="ln">Deutsch</span><span class="lc">DE</span></button><button type="button" role="option" data-l="ja"><span class="ln">日本語</span><span class="lc">JA</span></button><button type="button" role="option" data-l="ar"><span class="ln">العربية</span><span class="lc">AR</span></button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="blk-turn">
+        <div class="label" id="capTurn" hidden></div>
+        <div class="players" id="players">
+          <button class="pcard p1" id="card1">
+            <span class="pname" id="name1"></span>
+            <span class="prole" id="role1"></span><span class="star"></span>
+          </button>
+          <button class="pcard p2" id="card2">
+            <span class="pname" id="name2"></span>
+            <span class="prole" id="role2"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="statusrow">
+        <div class="status" id="status"></div>
+        <div class="motiv" id="motiv"></div>
+        <div class="arrow">↓</div>
+      </div>
+
+    <div class="playrow">
+      <div class="blk-wind">
+        <div class="label" id="capWind" hidden></div>
+        <div class="compass" id="compass"></div>
+      </div>
+      <div class="field">
+        <div class="board" id="board"></div>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div class="result" id="result"></div>
+      <div class="conn" id="connBar" hidden><span id="connTxt"></span></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2 id="mTitle"></h2>
+      <p class="lead" id="mLead"></p>
+      <div id="mSteps"></div>
+      <div class="win-line" id="mWin"></div>
+      <button class="close" id="mClose"></button>
+    </div>
+  </div>
+
+  <div class="overlay show" id="lobby">
+    <div class="modal lobby">
+      <div class="langsel on-light" id="langLobby"><button class="langsel-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Language"><span class="langsel-cur">EN</span><svg class="chev" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5"/></svg></button><div class="langsel-panel" role="listbox" hidden><button type="button" role="option" data-l="en" aria-selected="true"><span class="ln">English</span><span class="lc">EN</span></button><button type="button" role="option" data-l="tr"><span class="ln">Türkçe</span><span class="lc">TR</span></button><button type="button" role="option" data-l="fr"><span class="ln">Français</span><span class="lc">FR</span></button><button type="button" role="option" data-l="de"><span class="ln">Deutsch</span><span class="lc">DE</span></button><button type="button" role="option" data-l="ja"><span class="ln">日本語</span><span class="lc">JA</span></button><button type="button" role="option" data-l="ar"><span class="ln">العربية</span><span class="lc">AR</span></button></div></div>
+      <h2 id="lbTitle">Dandelions</h2>
+      <p class="lead" id="lbLead">Play together — on this device or online.</p>
+
+      <div id="lbHome">
+        <div class="label" id="lbSizeCap" style="margin-bottom:8px">Board size</div>
+        <div class="sizes" id="sizes">
+          <button data-n="4" class="on">4 × 4</button>
+          <button data-n="5">5 × 5</button>
+          <button data-n="6">6 × 6</button>
+        </div>
+        <button class="mode-btn primary" id="btnLocal">Same device</button>
+        <button class="mode-btn" id="btnCreate" disabled>Create online room</button>
+        <button class="mode-btn" id="btnJoinView" disabled>Join with code</button>
+        <p class="static-note" id="staticNote" hidden></p>
+      </div>
+
+      <div id="lbJoin" hidden>
+        <input class="code-in" id="codeIn" maxlength="6" autocomplete="off"
+               spellcheck="false" placeholder="XXXXXX" aria-label="Room code">
+        <div class="err" id="joinErr"></div>
+        <button class="mode-btn primary" id="btnJoin">Join</button>
+        <button class="mode-btn" id="btnBack1">Back</button>
+      </div>
+
+      <div id="lbWait" hidden>
+        <div class="label" id="lbCodeCap">Room code</div>
+        <div class="roomcode" id="roomCode">------</div>
+        <div class="conn wait" id="waitConn"><span class="dot-i"></span><span id="waitTxt">Waiting for the other player</span></div>
+        <div class="hint" id="lbHint">Share this code. Only two people can be in a room.</div>
+        <button class="mode-btn" id="btnCancel" style="margin-top:14px">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="winOverlay">
+    <div class="modal win-modal">
+      <div class="win-art" id="winEmoji"></div>
+      <h2 id="winTitle"></h2>
+      <p class="win-sub" id="winSub"></p>
+      <button class="close" id="winBtn"></button>
+    </div>
+  </div>
+
+<script>
+/* ---------- doodle line art ---------- */
+const IC_BLOOM='<svg class="ic" viewBox="0 0 40 40"><path class="stem" d="M20 13.5c.6 5.4 1.2 8.4.4 12.2-.5 2.6-1.4 5.4-1.6 12.3"/><path class="ray" d="M20.0 10.9L20.0 3.3M21.0 11.1L23.9 4.1M21.8 11.7L27.2 6.3M22.4 12.5L29.4 9.6M22.6 13.5L30.2 13.5M22.4 14.5L29.4 17.4M21.8 15.3L27.2 20.7M21.0 15.9L23.9 22.9M20.0 16.1L20.0 23.7M19.0 15.9L16.1 22.9M18.2 15.3L12.8 20.7M17.6 14.5L10.6 17.4M17.4 13.5L9.8 13.5M17.6 12.5L10.6 9.6M18.2 11.7L12.8 6.3M19.0 11.1L16.1 4.1"/><circle class="dot" cx="20.0" cy="2.1" r="1"/><circle class="dot" cx="24.4" cy="3.0" r="1"/><circle class="dot" cx="28.1" cy="5.4" r="1"/><circle class="dot" cx="30.5" cy="9.1" r="1"/><circle class="dot" cx="31.4" cy="13.5" r="1"/><circle class="dot" cx="30.5" cy="17.9" r="1"/><circle class="dot" cx="28.1" cy="21.6" r="1"/><circle class="dot" cx="24.4" cy="24.0" r="1"/><circle class="dot" cx="20.0" cy="24.9" r="1"/><circle class="dot" cx="15.6" cy="24.0" r="1"/><circle class="dot" cx="11.9" cy="21.6" r="1"/><circle class="dot" cx="9.5" cy="17.9" r="1"/><circle class="dot" cx="8.6" cy="13.5" r="1"/><circle class="dot" cx="9.5" cy="9.1" r="1"/><circle class="dot" cx="11.9" cy="5.4" r="1"/><circle class="dot" cx="15.6" cy="3.0" r="1"/></svg>';
+const IC_SEED='<svg class="ic" viewBox="0 0 24 24"><path class="ray" d="M12.0 9.2L6.7 6.0M12.0 9.2L8.9 3.8M12.0 9.2L12.0 3.0M12.0 9.2L15.1 3.8M12.0 9.2L17.3 6.0"/><circle class="dot" cx="5.9" cy="5.5" r="1"/><circle class="dot" cx="8.5" cy="3.0" r="1"/><circle class="dot" cx="12.0" cy="2.1" r="1"/><circle class="dot" cx="15.5" cy="3.0" r="1"/><circle class="dot" cx="18.1" cy="5.5" r="1"/><path class="stem" d="M12 9.2c.4 4.6.2 7.6-.5 11.6"/></svg>';
+const IC_WIND='<svg class="ic" viewBox="0 0 40 40"><path d="M5 15h18a5 5 0 1 0-5-5"/><path d="M5 23h22a5 5 0 1 1-5 5"/><path d="M5 19h11"/></svg>';
+
+/* ---------- i18n ---------- */
+const T={
+  tr:{
+    title:"Karahindiba", how:"Nasıl oynanır", reset:"Yeniden başla",
+    capTurn:"Sıra", capWind:"Rüzgâr gülü",
+    lbBloom:"Çiçek", lbWind:"Esiş",
+    bloomTurn:"boş bir kareye çiçek dik",
+    windTurn:function(n){return "bir yön seç · "+n+" esiş kaldı";},
+    mTitle:"Nasıl oynanır",
+    mLead:"İki kişilik bir tarla oyunu. Biri çiçek açtırmaya, diğeri rüzgârla tohumları savurmaya çalışır.",
+    steps:[
+      "<b>Karahindiba</b> sırası gelince boş bir kareye dokunup çiçek diker.",
+      "Bir satırda <b>yalnızca bir çiçek</b> olabilir — dolu satırdaki kareler kilitlenir.",
+      "<b>Rüzgâr</b> sırası gelince pusuladan bir yön seçer; çiçekler o yöne tohum saçar.",
+      "Her yön <b>yalnızca bir kez</b> esebilir — kullanılan oklar soluklaşır."
+    ],
+    mWin:"8 yönün hepsi estiğinde tarlada hâlâ boş kare kaldıysa <b>Karahindiba</b> kazanır. Tarla baştan başa dolduysa <b>Rüzgâr</b> kazanır.",
+    close:"Anladım, oynayalım",
+    motivB:["Güzel bir köşe seç.","Tarlayı çiçeğe boğ.","Her çiçek bir savunmadır.","Boşlukları kapat.","Rüzgârı zorla."],
+    motivW:["Şimdi savur onları.","En çok boşluğu doldur.","Yönünü iyi seç.","Tek esişle çok yer kapla.","Rüzgâr senden yana."],
+    motivStart:"Tarlaya ilk çiçeği dik.",
+    roleBloom:"Karahindiba", roleWind:"Rüzgâr",
+    winnerOf:function(name){return name+" kazandı";},
+    lbLead:"Birlikte oynayın — aynı cihazda ya da internet üzerinden.",
+    lbLocal:"Aynı cihaz", lbCreate:"Online oda kur", lbJoinView:"Kodla katıl",
+    lbJoin:"Katıl", lbBack:"Geri", lbCancel:"Vazgeç", lbCodeCap:"Oda kodu", lbSize:"Tahta boyutu",
+    lbWaiting:"Diğer oyuncu bekleniyor", lbHintTxt:"Bu kodu paylaşın. Bir odada yalnızca iki kişi olabilir.",
+    lbConnected:"Bağlı", lbLost:"Bağlantı koptu — yeniden bağlanılıyor",
+    lbYouBloom:"Karahindibasınız", lbYouWind:"Rüzgârsınız",
+    errBadCode:"Kod 6 karakter olmalı", errNoRoom:"Oda bulunamadı",
+    errFull:"Oda dolu — sadece 2 kişi olabilir", errNet:"Bağlantı hatası",
+    errRate:"Çok fazla deneme — biraz bekleyin",
+    waitTurn:"Sıra rakipte",
+    winBloomSub:"Tarlada boşluklar kaldı — karahindibalar tarlayı korudu.",
+    winWindSub:"Tarla baştan başa doldu — rüzgâr her köşeye ulaştı.",
+    playAgain:"Tekrar oyna",
+    staticNote:"Bu sürüm sunucusuz çalışıyor, bu yüzden yalnızca aynı cihazda oynanabilir. Oda koduyla online oyun için sunucu sürümü gerekir."
+  },
+  en:{
+    title:"Dandelions", how:"How to play", reset:"Play again",
+    capTurn:"Turn", capWind:"Wind rose",
+    lbBloom:"Flowers", lbWind:"Gusts",
+    bloomTurn:"plant a flower on an empty square",
+    windTurn:function(n){return "pick a direction · "+n+" gusts left";},
+    mTitle:"How to play",
+    mLead:"A two-player field game. One side grows flowers, the other blows their seeds away.",
+    steps:[
+      "On the <b>Dandelions</b> turn, tap an empty square to plant a flower.",
+      "Each row may hold <b>only one flower</b> — squares in a filled row get locked.",
+      "On the <b>Wind</b> turn, pick a direction; flowers cast seeds that way.",
+      "Each direction can blow <b>only once</b> — used arrows fade out."
+    ],
+    mWin:"After all 8 directions have blown, if any square is still empty <b>Dandelions</b> win. If the whole field is full, the <b>Wind</b> wins.",
+    close:"Got it, let's play",
+    motivB:["Pick a clever corner.","Flood the field.","Every flower is a defense.","Seal the gaps.","Make the wind work."],
+    motivW:["Now scatter them.","Cover the most empty ground.","Choose your line well.","One gust, lots of land.","The wind favors you."],
+    motivStart:"Plant the first flower.",
+    roleBloom:"Dandelions", roleWind:"Wind",
+    winnerOf:function(name){return name+" win";},
+    lbLead:"Play together — on this device or online.",
+    lbLocal:"Same device", lbCreate:"Create online room", lbJoinView:"Join with code",
+    lbJoin:"Join", lbBack:"Back", lbCancel:"Cancel", lbCodeCap:"Room code", lbSize:"Board size",
+    lbWaiting:"Waiting for the other player", lbHintTxt:"Share this code. Only two people can be in a room.",
+    lbConnected:"Connected", lbLost:"Connection lost — reconnecting",
+    lbYouBloom:"You are Dandelions", lbYouWind:"You are Wind",
+    errBadCode:"Code must be 6 characters", errNoRoom:"Room not found",
+    errFull:"Room is full — only 2 players allowed", errNet:"Connection error",
+    errRate:"Too many attempts — please wait",
+    waitTurn:"Opponent's turn",
+    winBloomSub:"Gaps remained in the field — the dandelions held their ground.",
+    winWindSub:"The whole field filled up — the wind reached every corner.",
+    playAgain:"Play again",
+    staticNote:"This copy runs without a server, so only same-device play is available. Online play with a room code needs the server version."
+  },
+
+  fr:{
+    title:"Pissenlits", how:"Comment jouer", reset:"Recommencer",
+    capTurn:"Tour", capWind:"Rose des vents",
+    lbBloom:"Fleurs", lbWind:"Souffles",
+    bloomTurn:"plantez une fleur sur une case vide",
+    windTurn:function(n){return "choisissez une direction · "+n+" souffles restants";},
+    mTitle:"Comment jouer",
+    mLead:"Un jeu de champ à deux. L'un fait pousser des fleurs, l'autre disperse leurs graines.",
+    steps:[
+      "Au tour des <b>Pissenlits</b>, touchez une case vide pour planter une fleur.",
+      "Une rangée ne peut contenir <b>qu'une seule fleur</b> — les cases de la rangée se verrouillent.",
+      "Au tour du <b>Vent</b>, choisissez une direction ; les fleurs y sèment leurs graines.",
+      "Chaque direction ne souffle <b>qu'une seule fois</b> — les flèches utilisées s'estompent."
+    ],
+    mWin:"Après les 8 directions, s'il reste une case vide les <b>Pissenlits</b> gagnent. Si le champ est plein, le <b>Vent</b> gagne.",
+    close:"Compris, jouons",
+    motivB:["Choisissez un bon coin.","Couvrez le champ de fleurs.","Chaque fleur est une défense.","Bouchez les trous.","Forcez le vent."],
+    motivW:["Dispersez-les maintenant.","Couvrez le plus de terrain.","Choisissez bien votre ligne.","Un souffle, beaucoup de terrain.","Le vent est avec vous."],
+    motivStart:"Plantez la première fleur.",
+    roleBloom:"Pissenlits", roleWind:"Vent",
+    winnerOf:function(name){return name+" gagne";},
+    lbLead:"Jouez ensemble — sur cet appareil ou en ligne.",
+    lbLocal:"Même appareil", lbCreate:"Créer une partie en ligne", lbJoinView:"Rejoindre avec un code",
+    lbJoin:"Rejoindre", lbBack:"Retour", lbCancel:"Annuler", lbCodeCap:"Code de la partie", lbSize:"Taille du plateau",
+    lbWaiting:"En attente de l'autre joueur", lbHintTxt:"Partagez ce code. Une partie n'accepte que deux personnes.",
+    lbConnected:"Connecté", lbLost:"Connexion perdue — reconnexion",
+    lbYouBloom:"Vous êtes les Pissenlits", lbYouWind:"Vous êtes le Vent",
+    errBadCode:"Le code doit faire 6 caractères", errNoRoom:"Partie introuvable",
+    errFull:"Partie complète — 2 joueurs maximum", errNet:"Erreur de connexion",
+    errRate:"Trop de tentatives — patientez un peu",
+    waitTurn:"Au tour de l'adversaire",
+    winBloomSub:"Des cases vides sont restées — les pissenlits ont tenu bon.",
+    winWindSub:"Le champ s'est rempli — le vent a atteint chaque recoin.",
+    playAgain:"Rejouer",
+    staticNote:"Cette version fonctionne sans serveur : seul le jeu sur le même appareil est disponible. Le jeu en ligne avec un code nécessite la version serveur."
+  },
+
+  de:{
+    title:"Löwenzahn", how:"Spielanleitung", reset:"Neu starten",
+    capTurn:"Zug", capWind:"Windrose",
+    lbBloom:"Blumen", lbWind:"Böen",
+    bloomTurn:"pflanze eine Blume auf ein leeres Feld",
+    windTurn:function(n){return "wähle eine Richtung · "+n+" Böen übrig";},
+    mTitle:"Spielanleitung",
+    mLead:"Ein Feldspiel für zwei. Einer lässt Blumen wachsen, der andere pustet ihre Samen fort.",
+    steps:[
+      "Ist <b>Löwenzahn</b> am Zug, tippe ein leeres Feld an, um eine Blume zu pflanzen.",
+      "Pro Reihe ist <b>nur eine Blume</b> erlaubt — die Felder dieser Reihe werden gesperrt.",
+      "Ist der <b>Wind</b> am Zug, wähle eine Richtung; die Blumen streuen dorthin ihre Samen.",
+      "Jede Richtung weht <b>nur einmal</b> — benutzte Pfeile verblassen."
+    ],
+    mWin:"Sind alle 8 Richtungen geweht und bleibt ein Feld leer, gewinnt <b>Löwenzahn</b>. Ist das Feld voll, gewinnt der <b>Wind</b>.",
+    close:"Verstanden, los geht's",
+    motivB:["Wähle eine kluge Ecke.","Flute das Feld mit Blumen.","Jede Blume ist Verteidigung.","Schließe die Lücken.","Fordere den Wind heraus."],
+    motivW:["Jetzt verstreue sie.","Decke möglichst viel ab.","Wähle deine Linie gut.","Eine Bö, viel Fläche.","Der Wind steht dir bei."],
+    motivStart:"Pflanze die erste Blume.",
+    roleBloom:"Löwenzahn", roleWind:"Wind",
+    winnerOf:function(name){return name+" gewinnt";},
+    lbLead:"Spielt zusammen — auf diesem Gerät oder online.",
+    lbLocal:"Gleiches Gerät", lbCreate:"Online-Raum erstellen", lbJoinView:"Mit Code beitreten",
+    lbJoin:"Beitreten", lbBack:"Zurück", lbCancel:"Abbrechen", lbCodeCap:"Raumcode", lbSize:"Spielfeldgröße",
+    lbWaiting:"Warte auf den anderen Spieler", lbHintTxt:"Teile diesen Code. In einem Raum sind nur zwei Personen erlaubt.",
+    lbConnected:"Verbunden", lbLost:"Verbindung verloren — neu verbinden",
+    lbYouBloom:"Du bist der Löwenzahn", lbYouWind:"Du bist der Wind",
+    errBadCode:"Der Code muss 6 Zeichen haben", errNoRoom:"Raum nicht gefunden",
+    errFull:"Raum voll — nur 2 Spieler", errNet:"Verbindungsfehler",
+    errRate:"Zu viele Versuche — bitte warte kurz",
+    waitTurn:"Gegner ist am Zug",
+    winBloomSub:"Es blieben Lücken im Feld — der Löwenzahn hat standgehalten.",
+    winWindSub:"Das ganze Feld ist voll — der Wind erreichte jede Ecke.",
+    playAgain:"Nochmal spielen",
+    staticNote:"Diese Version läuft ohne Server, daher ist nur das Spiel auf dem gleichen Gerät möglich. Für Online-Spiel mit Raumcode wird die Server-Version benötigt."
+  },
+
+  ja:{
+    title:"タンポポ", how:"遊び方", reset:"もう一度",
+    capTurn:"手番", capWind:"風配図",
+    lbBloom:"花", lbWind:"風",
+    bloomTurn:"空いているマスに花を植える",
+    windTurn:function(n){return "方向を選ぶ · 残り "+n+" 回";},
+    mTitle:"遊び方",
+    mLead:"2人用の野原ゲーム。一方は花を咲かせ、もう一方は風で種を飛ばします。",
+    steps:[
+      "<b>タンポポ</b>の番では、空いているマスをタップして花を植えます。",
+      "1つの行に置ける花は<b>1つだけ</b>です — その行の他のマスは閉じます。",
+      "<b>風</b>の番では方向を選びます。花はその方向へ種を飛ばします。",
+      "各方向は<b>一度しか</b>吹けません — 使った矢印は薄くなります。"
+    ],
+    mWin:"8方向すべてが吹いたあと、空きマスが残っていれば<b>タンポポ</b>の勝ち。野原が埋まっていれば<b>風</b>の勝ちです。",
+    close:"わかりました、始めましょう",
+    motivB:["いい角を選ぼう。","野原を花で埋めよう。","花はすべて守りになる。","すき間をふさごう。","風を追い込もう。"],
+    motivW:["さあ、飛ばそう。","空きを最大限に埋めよう。","進む線をよく選ぼう。","一吹きで広く取ろう。","風は味方だ。"],
+    motivStart:"最初の花を植えよう。",
+    roleBloom:"タンポポ", roleWind:"風",
+    winnerOf:function(name){return name+"の勝ち";},
+    lbLead:"一緒に遊ぼう — この端末でも、オンラインでも。",
+    lbLocal:"同じ端末", lbCreate:"オンラインルームを作る", lbJoinView:"コードで参加",
+    lbJoin:"参加", lbBack:"戻る", lbCancel:"キャンセル", lbCodeCap:"ルームコード", lbSize:"盤の大きさ",
+    lbWaiting:"相手を待っています", lbHintTxt:"このコードを共有してください。1つのルームには2人までです。",
+    lbConnected:"接続中", lbLost:"接続が切れました — 再接続しています",
+    lbYouBloom:"あなたはタンポポ", lbYouWind:"あなたは風",
+    errBadCode:"コードは6文字です", errNoRoom:"ルームが見つかりません",
+    errFull:"ルームが満員です — 2人までです", errNet:"接続エラー",
+    errRate:"試行が多すぎます — 少しお待ちください",
+    waitTurn:"相手の番です",
+    winBloomSub:"野原に空きが残りました — タンポポが守り抜きました。",
+    winWindSub:"野原が埋まりました — 風がすみずみまで届きました。",
+    playAgain:"もう一度遊ぶ",
+    staticNote:"このバージョンはサーバーなしで動作するため、同じ端末での対戦のみ可能です。ルームコードによるオンライン対戦にはサーバー版が必要です。"
+  },
+
+  ar:{
+    title:"الهندباء", how:"طريقة اللعب", reset:"إعادة اللعب",
+    capTurn:"الدور", capWind:"وردة الرياح",
+    lbBloom:"الأزهار", lbWind:"الهبّات",
+    bloomTurn:"ازرع زهرة في مربع فارغ",
+    windTurn:function(n){return "اختر اتجاهًا · بقيت "+n+" هبّات";},
+    mTitle:"طريقة اللعب",
+    mLead:"لعبة حقل لشخصين. أحدهما يُنبت الأزهار، والآخر يُطيّر بذورها بالريح.",
+    steps:[
+      "في دور <b>الهندباء</b>، المس مربعًا فارغًا لزراعة زهرة.",
+      "لا يُسمح إلا بـ<b>زهرة واحدة</b> في كل صف — تُقفل بقية مربعات الصف.",
+      "في دور <b>الريح</b>، اختر اتجاهًا؛ تنثر الأزهار بذورها في ذلك الاتجاه.",
+      "كل اتجاه يهبّ <b>مرة واحدة فقط</b> — تبهت الأسهم المستخدمة."
+    ],
+    mWin:"بعد هبوب الاتجاهات الثمانية، إذا بقي مربع فارغ تفوز <b>الهندباء</b>. وإذا امتلأ الحقل تفوز <b>الريح</b>.",
+    close:"فهمت، لنلعب",
+    motivB:["اختر زاوية ذكية.","اغمر الحقل بالأزهار.","كل زهرة خط دفاع.","سُدّ الفجوات.","أرهق الريح."],
+    motivW:["انثرها الآن.","غطِّ أكبر مساحة فارغة.","اختر خطك بعناية.","هبّة واحدة، أرض واسعة.","الريح في صفك."],
+    motivStart:"ازرع الزهرة الأولى.",
+    roleBloom:"الهندباء", roleWind:"الريح",
+    winnerOf:function(name){return "فاز "+name;},
+    lbLead:"العبا معًا — على هذا الجهاز أو عبر الإنترنت.",
+    lbLocal:"الجهاز نفسه", lbCreate:"إنشاء غرفة على الإنترنت", lbJoinView:"انضم برمز",
+    lbJoin:"انضمام", lbBack:"رجوع", lbCancel:"إلغاء", lbCodeCap:"رمز الغرفة", lbSize:"حجم اللوحة",
+    lbWaiting:"في انتظار اللاعب الآخر", lbHintTxt:"شارك هذا الرمز. لا تتسع الغرفة إلا لشخصين.",
+    lbConnected:"متصل", lbLost:"انقطع الاتصال — تجري إعادة الاتصال",
+    lbYouBloom:"أنت الهندباء", lbYouWind:"أنت الريح",
+    errBadCode:"يجب أن يكون الرمز من 6 أحرف", errNoRoom:"لم يتم العثور على الغرفة",
+    errFull:"الغرفة ممتلئة — لاعبان فقط", errNet:"خطأ في الاتصال",
+    errRate:"محاولات كثيرة — انتظر قليلًا",
+    waitTurn:"دور الخصم",
+    winBloomSub:"بقيت فجوات في الحقل — صمدت الهندباء.",
+    winWindSub:"امتلأ الحقل بالكامل — بلغت الريح كل ركن.",
+    playAgain:"العب مرة أخرى",
+    staticNote:"تعمل هذه النسخة دون خادم، لذا لا يتوفر سوى اللعب على الجهاز نفسه. يتطلب اللعب عبر الإنترنت برمز غرفة نسخةَ الخادم."
+  }
+};
+let lang='en';
+
+var net = { mode:'local', code:null, token:null, role:null, es:null, ready:false, lastVer:-1 };
+var chosenSize = 4;
+
+/* ---------- game ---------- */
+let N=4;
+const DIRS=[
+  {dr:-1,dc:-1,s:'\u2196'},{dr:-1,dc:0,s:'\u2191'},{dr:-1,dc:1,s:'\u2197'},
+  {dr:0,dc:-1,s:'\u2190'},{c:1},{dr:0,dc:1,s:'\u2192'},
+  {dr:1,dc:-1,s:'\u2199'},{dr:1,dc:0,s:'\u2193'},{dr:1,dc:1,s:'\u2198'}
+];
+let g,used,turn,blooms,over,busy;
+let fly={};
+const board=document.getElementById('board');
+const comp=document.getElementById('compass');
+const statusEl=document.getElementById('status');
+const motiv=document.getElementById('motiv');
+const result=document.getElementById('result');
+const card1=document.getElementById('card1');
+const card2=document.getElementById('card2');
+
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function p1Name(){return T[lang].roleBloom;}
+function p2Name(){return T[lang].roleWind;}
+
+function renderPlayers(){
+  document.getElementById('name1').textContent=T[lang].roleBloom;
+  document.getElementById('name2').textContent=T[lang].roleWind;
+  var running = typeof turn!=='undefined' && !over;
+  card1.classList.toggle('act', running && turn==='b');
+  card2.classList.toggle('act', running && turn==='w');
+}
+function init(){
+  g=Array.from({length:N},()=>Array(N).fill(0));
+  used=new Set();turn='b';blooms=[];over=false;busy=false;fly={};
+  card1.classList.remove('win');card2.classList.remove('win');
+  build();result.textContent='';result.className='result';
+  motiv.textContent=T[lang].motivStart;
+  render();
+}
+function build(){
+  board.style.gridTemplateColumns='repeat('+N+',1fr)';
+  board.style.gridTemplateRows='repeat('+N+',1fr)';
+  board.innerHTML='';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const d=document.createElement('div');
+    d.className='cell';d.dataset.r=r;d.dataset.c=c;
+    d.onclick=()=>plant(r,c);
+    board.appendChild(d);
+  }
+  comp.innerHTML='';
+  DIRS.forEach((d,i)=>{
+    const b=document.createElement('div');
+    if(d.c){b.className='dir c';b.innerHTML=IC_WIND;}
+    else{b.className='dir';b.textContent=d.s;b.dataset.i=i;b.onclick=()=>wind(d,i);}
+    comp.appendChild(b);
+  });
+}
+function cellAt(r,c){return board.querySelectorAll('.cell')[r*N+c]}
+function rowHasBloom(r){for(var c=0;c<N;c++)if(g[r][c]===2)return true;return false;}
+
+function plant(r,c){
+  if(over||busy||turn!=='b'||g[r][c]) return;
+  if(rowHasBloom(r)) return;
+  if(net.mode==='online'){
+    if(net.role!=='bloom' || !net.ready) return;
+    busy=true;
+    api('/api/move',{code:net.code,token:net.token,action:'plant',r:r,c:c})
+      .then(function(res){ busy=false; if(res.status!==200){ setConn('wait', errText(res.data.error)); } })
+      .catch(function(){ busy=false; setConn('wait', T[lang].errNet); });
+    return;
+  }
+  g[r][c]=2;blooms.push([r,c]);turn='w';
+  motiv.textContent=rnd(T[lang].motivW);
+  render();check();
+}
+function wind(d,i){
+  if(over||busy||turn!=='w'||used.has(i)) return;
+  if(net.mode==='online'){
+    if(net.role!=='wind' || !net.ready) return;
+    busy=true;
+    api('/api/move',{code:net.code,token:net.token,action:'wind',dir:i})
+      .then(function(res){ busy=false; if(res.status!==200){ setConn('wait', errText(res.data.error)); } })
+      .catch(function(){ busy=false; setConn('wait', T[lang].errNet); });
+    return;
+  }
+  busy=true;used.add(i);
+  scatterBlooms(d);
+  const touched=[];
+  fly={};
+  blooms.forEach(function(b){
+    var r=b[0]+d.dr,c=b[1]+d.dc,step=1;
+    while(r>=0&&r<N&&c>=0&&c<N){
+      if(!g[r][c]){
+        g[r][c]=1;touched.push([r,c]);
+        fly[r*N+c]={dr:d.dr,dc:d.dc,step:step};
+      }
+      r+=d.dr;c+=d.dc;step++;
+    }
+  });
+  render();
+  setTimeout(function(){fly={};},700);
+  touched.forEach(function(t){var el=cellAt(t[0],t[1]);el.classList.add('flash');setTimeout(function(){el.classList.remove('flash');},220);});
+  turn='b';busy=false;
+  motiv.textContent=rnd(T[lang].motivB);
+  render();check();
+}
+function scatterBlooms(d){
+  var cell=100/N;
+  blooms.forEach(function(b){
+    var cx=(b[1]+0.5)*cell, cy=(b[0]+0.5)*cell;
+    var el=cellAt(b[0],b[1]);
+    var bloomEl=el && el.querySelector('.bloom');
+    if(bloomEl){
+      var deg=(d.dc!==0 ? d.dc*11 : d.dr*8);
+      bloomEl.style.setProperty('--swayDeg', deg+'deg');
+      bloomEl.classList.remove('sway');void bloomEl.offsetWidth;
+      bloomEl.classList.add('sway');
+    }
+    var count=4+Math.floor(Math.random()*3);
+    for(var k=0;k<count;k++){
+      var f=document.createElement('div');
+      f.className='fluff';f.innerHTML=IC_SEED;
+      var spread=(Math.random()-0.5)*cell*1.3;
+      var dist=cell*(1.3+Math.random()*1.3);
+      f.style.setProperty('--x0', cx+'%');
+      f.style.setProperty('--y0', cy+'%');
+      f.style.setProperty('--x1', (cx + d.dc*dist + (-d.dr)*spread)+'%');
+      f.style.setProperty('--y1', (cy + d.dr*dist + ( d.dc)*spread)+'%');
+      f.style.setProperty('--spin', (90+Math.random()*220)+'deg');
+      f.style.setProperty('--dur', (0.7+Math.random()*0.5)+'s');
+      f.style.setProperty('--delay', (Math.random()*0.14)+'s');
+      board.appendChild(f);
+      (function(elf){setTimeout(function(){elf.remove();},1300);})(f);
+    }
+  });
+}
+function render(){
+  [...board.querySelectorAll('.cell')].forEach(function(cell,i){
+    var r=Math.floor(i/N), c=i%N, v=g[r][c];
+    var locked = v===0 && turn==='b' && !over && rowHasBloom(r);
+    cell.classList.toggle('empty',v===0 && !locked);
+    cell.classList.toggle('locked',locked);
+    var html;
+    if(v===2){
+      html='<div class="bloom">'+IC_BLOOM+'</div>';
+    }else if(v===1){
+      var f=fly[i];
+      if(f){
+        var dist=150;
+        html='<div class="seed fly" style="--fx:'+(-f.dc*dist)+'%;--fy:'+(-f.dr*dist)+'%;--delay:'+(Math.min(f.step,6)*0.045)+'s">'+IC_SEED+'</div>';
+      }else{
+        html='<div class="seed">'+IC_SEED+'</div>';
+      }
+    }else{ html=''; }
+    if(cell.innerHTML!==html)cell.innerHTML=html;
+  });
+  board.classList.toggle('active',turn==='b'&&!over);
+  comp.classList.toggle('on',turn==='w'&&!over);
+  [...comp.querySelectorAll('.dir[data-i]')].forEach(function(b){b.classList.toggle('x',used.has(+b.dataset.i));});
+  renderPlayers();
+  if(over){statusEl.innerHTML='';return;}
+  statusEl.innerHTML=turn==='b'
+    ? '<b>'+p1Name()+'</b> — '+T[lang].bloomTurn
+    : '<b>'+p2Name()+'</b> — '+T[lang].windTurn(8-used.size);
+}
+function canBloomMove(){
+  for(var r=0;r<N;r++){
+    if(rowHasBloom(r)) continue;
+    for(var c=0;c<N;c++){ if(g[r][c]===0) return true; }
+  }
+  return false;
+}
+function check(){
+  if(g.every(function(r){return r.every(function(v){return v;});})){ endGame('wind');return; }
+  if(used.size===8){ endGame('bloom');return; }
+  if(turn==='b' && !canBloomMove()){ endGame('bloom');return; }
+}
+function endGame(who){
+  over=true;render();motiv.textContent='';
+  if(who==='wind'){
+    result.textContent=T[lang].winnerOf(p2Name());result.className='result lose';
+    card2.classList.add('win');card2.classList.remove('act');
+  }else{
+    result.textContent=T[lang].winnerOf(p1Name());result.className='result';
+    card1.classList.add('win');card1.classList.remove('act');
+  }
+  showWinner(who);
+}
+function showWinner(who){
+  var ov=document.getElementById('winOverlay');
+  ov.classList.remove('w-bloom','w-wind');ov.classList.add(who==='wind'?'w-wind':'w-bloom');
+  document.getElementById('winEmoji').innerHTML = who==='wind' ? IC_WIND : IC_BLOOM;
+  document.getElementById('winTitle').textContent =
+    who==='wind' ? T[lang].winnerOf(p2Name()) : T[lang].winnerOf(p1Name());
+  document.getElementById('winSub').textContent =
+    who==='wind' ? T[lang].winWindSub : T[lang].winBloomSub;
+  document.getElementById('winBtn').textContent = T[lang].playAgain;
+  setTimeout(function(){ ov.classList.add('show'); celebrate(who); }, 800);
+}
+function celebrate(who){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  var layer=document.createElement('div');
+  layer.className='confetti-layer';
+  document.body.appendChild(layer);
+  var art = who==='wind' ? IC_SEED : IC_BLOOM;
+  for(var i=0;i<34;i++){
+    var c=document.createElement('div');
+    c.className='confetti';c.innerHTML=art;
+    var sz=(13+Math.random()*16);
+    c.style.width=sz+'px';c.style.height=sz+'px';
+    c.style.left=(Math.random()*100)+'vw';
+    c.style.setProperty('--cdur',(2.2+Math.random()*1.8)+'s');
+    c.style.setProperty('--cdelay',(Math.random()*0.9)+'s');
+    c.style.setProperty('--cx',((Math.random()-0.5)*180)+'px');
+    c.style.setProperty('--crot',((Math.random()-0.5)*700)+'deg');
+    layer.appendChild(c);
+  }
+  setTimeout(function(){layer.remove();}, 5200);
+}
+
+/* ---------- ui text ---------- */
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.getElementById('howBtn').setAttribute('aria-label',T[lang].how);
+  document.getElementById('gameTitle').textContent=T[lang].title;
+  document.getElementById('capTurn').textContent=T[lang].capTurn;
+  document.getElementById('capWind').textContent=T[lang].capWind;
+  document.getElementById('reset').textContent=T[lang].reset;
+  document.getElementById('mTitle').textContent=T[lang].mTitle;
+  document.getElementById('mLead').textContent=T[lang].mLead;
+  document.getElementById('mSteps').innerHTML=T[lang].steps.map(function(s,i){
+    return '<div class="step"><div class="n">'+(i+1)+'</div><div class="t">'+s+'</div></div>';
+  }).join('');
+  document.getElementById('mWin').innerHTML=T[lang].mWin;
+  document.getElementById('mClose').textContent=T[lang].close;
+  renderPlayers();
+  if(typeof used==='undefined'){return;}
+  if(!over){
+    statusEl.innerHTML=turn==='b'
+      ? '<b>'+p1Name()+'</b> — '+T[lang].bloomTurn
+      : '<b>'+p2Name()+'</b> — '+T[lang].windTurn(8-used.size);
+    if(!motiv.textContent || blooms.length===0) motiv.textContent=T[lang].motivStart;
+  }else{
+    if(result.classList.contains('lose')){ result.textContent=T[lang].winnerOf(p2Name()); }
+    else{ result.textContent=T[lang].winnerOf(p1Name()); }
+    var wov=document.getElementById('winOverlay');
+    if(wov.classList.contains('show')){
+      var isWind=wov.classList.contains('w-wind');
+      document.getElementById('winTitle').textContent=isWind?T[lang].winnerOf(p2Name()):T[lang].winnerOf(p1Name());
+      document.getElementById('winSub').textContent=isWind?T[lang].winWindSub:T[lang].winBloomSub;
+      document.getElementById('winBtn').textContent=T[lang].playAgain;
+    }
+  }
+}
+
+var RTL = { ar:true };
+var LANG_CODE = { en:'EN', tr:'TR', fr:'FR', de:'DE', ja:'JA', ar:'AR' };
+
+function closeAllLangPanels(except){
+  document.querySelectorAll('.langsel').forEach(function(root){
+    if(root===except) return;
+    root.classList.remove('open');
+    root.querySelector('.langsel-panel').hidden = true;
+    root.querySelector('.langsel-btn').setAttribute('aria-expanded','false');
+  });
+}
+
+function initLangSelect(id){
+  var root = document.getElementById(id);
+  if(!root) return;
+  var btn   = root.querySelector('.langsel-btn');
+  var panel = root.querySelector('.langsel-panel');
+
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var willOpen = panel.hidden;
+    closeAllLangPanels(root);
+    panel.hidden = !willOpen;
+    root.classList.toggle('open', willOpen);
+    btn.setAttribute('aria-expanded', String(willOpen));
+    if(willOpen){
+      var sel = panel.querySelector('[aria-selected="true"]');
+      if(sel) sel.focus();
+    }
+  });
+
+  panel.addEventListener('click', function(e){
+    var item = e.target.closest('[data-l]');
+    if(!item) return;
+    setLang(item.dataset.l);
+    closeAllLangPanels();
+    btn.focus();
+  });
+
+  // klavye: yukarı/aşağı gezin, Esc kapat
+  root.addEventListener('keydown', function(e){
+    var items = [].slice.call(panel.querySelectorAll('[data-l]'));
+    var pos = items.indexOf(document.activeElement);
+    if(e.key === 'Escape'){ closeAllLangPanels(); btn.focus(); }
+    else if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(panel.hidden){ btn.click(); return; }
+      var next = e.key === 'ArrowDown'
+        ? (pos + 1) % items.length
+        : (pos - 1 + items.length) % items.length;
+      items[next < 0 ? 0 : next].focus();
+    }
+  });
+}
+
+function setLang(code){
+  if(!T[code]) return;
+  lang = code;
+  document.documentElement.lang = code;
+  document.documentElement.dir = RTL[code] ? 'rtl' : 'ltr';
+  // her iki seçiciyi de senkronla
+  document.querySelectorAll('.langsel').forEach(function(root){
+    root.querySelector('.langsel-cur').textContent = LANG_CODE[code] || code.toUpperCase();
+    root.querySelectorAll('[data-l]').forEach(function(it){
+      if(it.dataset.l === code) it.setAttribute('aria-selected','true');
+      else it.removeAttribute('aria-selected');
+    });
+  });
+  applyLang();
+  if(typeof applyLobbyLang === 'function') applyLobbyLang();
+}
+
+/* sunucu var mı? yoksa online seçenekleri gizle (GitHub Pages gibi statik yayınlar) */
+function probeServer(){
+  var done = false;
+  var timer = setTimeout(function(){ if(!done){ done=true; setOnlineAvailable(false); } }, 2500);
+  fetch('api/health', {method:'GET'})
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+    .then(function(){ if(!done){ done=true; clearTimeout(timer); setOnlineAvailable(true); } })
+    .catch(function(){ if(!done){ done=true; clearTimeout(timer); setOnlineAvailable(false); } });
+}
+function setOnlineAvailable(ok){
+  net.static = !ok;
+  ['btnCreate','btnJoinView'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.disabled = !ok;
+  });
+  var n=document.getElementById('staticNote');
+  if(n){
+    n.hidden = ok;
+    if(!ok) n.textContent = T[lang].staticNote;
+  }
+}
+
+initLangSelect('langTop');
+initLangSelect('langLobby');
+document.addEventListener('click', function(){ closeAllLangPanels(); });
+
+const overlay=document.getElementById('overlay');
+document.getElementById('howBtn').onclick=function(){overlay.classList.add('show');};
+document.getElementById('mClose').onclick=function(){overlay.classList.remove('show');};
+overlay.onclick=function(e){if(e.target===overlay)overlay.classList.remove('show');};
+function restart(){
+  document.getElementById('winOverlay').classList.remove('show');
+  document.querySelectorAll('.confetti-layer').forEach(function(l){l.remove();});
+  // her durumda baştaki seçim ekranına dön
+  if(net.mode==='online'){ leaveOnline(); }   // odadan çık, yerel duruma sıfırla
+  else { init(); }
+  showLobbyView('lbHome');
+  openLobby();
+}
+document.getElementById('reset').onclick=restart;
+document.getElementById('winBtn').onclick=restart;
+
+/* ================= ONLINE ================= */
+
+function el(id){return document.getElementById(id);}
+function api(pathname, body){
+  return fetch(pathname, {method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body||{})}).then(function(r){
+      return r.json().catch(function(){return {};}).then(function(j){ return {status:r.status, data:j}; });
+    });
+}
+function errText(code){
+  var t=T[lang];
+  if(code==='room_not_found') return t.errNoRoom;
+  if(code==='room_full') return t.errFull;
+  if(code==='bad_code') return t.errBadCode;
+  if(code==='too_many_attempts'||code==='rate_limited') return t.errRate;
+  return t.errNet;
+}
+function showLobbyView(which){
+  ['lbHome','lbJoin','lbWait'].forEach(function(id){ el(id).hidden = (id!==which); });
+}
+function openLobby(){ el('lobby').classList.add('show'); showLobbyView('lbHome'); }
+function closeLobby(){ el('lobby').classList.remove('show'); }
+
+function setConn(state, text){
+  var bar=el('connBar');
+  if(net.mode!=='online' || !text){ bar.hidden=true; el('connTxt').textContent=''; return; }
+  bar.hidden=false;
+  bar.className='conn '+(state||'');
+  el('connTxt').textContent=text;
+}
+
+/* --- sunucu durumunu uygula --- */
+function applyServerState(st){
+  if(!st || !st.game) return;
+  net.role = st.youAre;
+  net.ready = st.bothConnected;
+
+  if(st.players < 2){
+    showLobbyView('lbWait');
+    el('roomCode').textContent = st.code;
+    el('lobby').classList.add('show');
+    return;
+  }
+  closeLobby();
+
+  var gm = st.game;
+  if(gm.n && gm.n !== N){ N = gm.n; build(); }
+  var fresh = gm.version !== net.lastVer;
+  net.lastVer = gm.version;
+
+  // efektler: sunucudan gelen son olaya göre
+  if(fresh && gm.lastEvent && gm.lastEvent.type==='wind'){
+    var d = DIRS[gm.lastEvent.dir];
+    // önce çiçekleri mevcut hâliyle kur, sonra saçılma efektini oynat
+    g = gm.grid.map(function(r){return r.slice();});
+    blooms = [];
+    for(var r=0;r<N;r++)for(var c=0;c<N;c++) if(g[r][c]===2) blooms.push([r,c]);
+    fly = {};
+    (gm.lastEvent.seeded||[]).forEach(function(t){ fly[t[0]*N+t[1]] = {dr:d.dr, dc:d.dc, step:t[2]}; });
+    setTimeout(function(){ fly={}; }, 700);
+    scatterBlooms(d);
+  }
+
+  g = gm.grid.map(function(r){return r.slice();});
+  blooms = [];
+  for(var r2=0;r2<N;r2++)for(var c2=0;c2<N;c2++) if(g[r2][c2]===2) blooms.push([r2,c2]);
+  used = new Set(gm.used);
+  turn = gm.turn;
+  busy = false;
+
+  if(gm.over && !over){
+    over = true;
+    render();
+    var who = gm.winner === 'wind' ? 'wind' : 'bloom';
+    if(who==='wind'){ result.textContent=T[lang].winnerOf(p2Name()); result.className='result lose';
+      card2.classList.add('win'); card2.classList.remove('act'); }
+    else { result.textContent=T[lang].winnerOf(p1Name()); result.className='result';
+      card1.classList.add('win'); card1.classList.remove('act'); }
+    showWinner(who);
+  } else if(!gm.over){
+    over = false;
+    render();
+  } else {
+    render();
+  }
+
+  // sıra göstergesi
+  var myTurn = (net.role==='bloom' && turn==='b') || (net.role==='wind' && turn==='w');
+  document.querySelector('.playrow').classList.toggle('locked', !myTurn && !over);
+  setConn('live', myTurn ? (net.role==='bloom'?T[lang].lbYouBloom:T[lang].lbYouWind) : T[lang].waitTurn);
+}
+
+function connect(){
+  if(net.es){ try{net.es.close();}catch(e){} }
+  var url='/api/events?room='+encodeURIComponent(net.code)+'&token='+encodeURIComponent(net.token);
+  var es=new EventSource(url);
+  net.es=es;
+  es.onmessage=function(ev){
+    try{ applyServerState(JSON.parse(ev.data)); }catch(e){}
+  };
+  es.onerror=function(){
+    setConn('wait', T[lang].lbLost);
+    // EventSource kendi otomatik yeniden bağlanır
+  };
+}
+
+function startOnline(code, token){
+  net.mode='online'; net.code=code; net.token=token; net.lastVer=-1;
+  try{ sessionStorage.setItem('kh_room', code); sessionStorage.setItem('kh_tok', token); }catch(e){}
+  el('roomCode').textContent=code;
+  showLobbyView('lbWait');
+  connect();
+}
+function leaveOnline(){
+  if(net.es){ try{net.es.close();}catch(e){} net.es=null; }
+  net.mode='local'; net.code=null; net.token=null; net.role=null; net.lastVer=-1;
+  try{ sessionStorage.removeItem('kh_room'); sessionStorage.removeItem('kh_tok'); }catch(e){}
+  document.querySelector('.playrow').classList.remove('locked');
+  el('connBar').hidden=true;
+  init();
+}
+
+/* --- tahta boyutu seçimi --- */
+document.querySelectorAll('#sizes button').forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll('#sizes button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    chosenSize = Number(b.dataset.n) || 4;
+  };
+});
+
+/* --- lobi olayları --- */
+el('btnLocal').onclick=function(){ net.mode='local'; el('connBar').hidden=true;
+  document.querySelector('.playrow').classList.remove('locked');
+  N = chosenSize; closeLobby(); init(); };
+el('btnJoinView').onclick=function(){ el('joinErr').textContent=''; showLobbyView('lbJoin'); el('codeIn').focus(); };
+el('btnBack1').onclick=function(){ showLobbyView('lbHome'); };
+el('btnCancel').onclick=function(){ leaveOnline(); showLobbyView('lbHome'); };
+
+el('btnCreate').onclick=function(){
+  api('/api/create',{size:chosenSize}).then(function(r){
+    if(r.status!==200){ el('joinErr').textContent=errText(r.data.error); showLobbyView('lbHome'); return; }
+    startOnline(r.data.code, r.data.token);
+  }).catch(function(){ el('joinErr').textContent=T[lang].errNet; });
+};
+el('btnJoin').onclick=function(){
+  var code=(el('codeIn').value||'').trim().toUpperCase();
+  if(!/^[A-Z2-9]{6}$/.test(code)){ el('joinErr').textContent=T[lang].errBadCode; return; }
+  el('joinErr').textContent='';
+  api('/api/join',{code:code}).then(function(r){
+    if(r.status!==200){ el('joinErr').textContent=errText(r.data.error); return; }
+    startOnline(r.data.code, r.data.token);
+  }).catch(function(){ el('joinErr').textContent=T[lang].errNet; });
+};
+el('codeIn').addEventListener('keydown',function(e){ if(e.key==='Enter') el('btnJoin').click(); });
+
+/* --- lobi metinlerini çevir --- */
+function applyLobbyLang(){
+  var t=T[lang];
+  el('lbTitle').textContent=t.title;
+  el('lbLead').textContent=t.lbLead;
+  el('btnLocal').textContent=t.lbLocal;
+  el('btnCreate').textContent=t.lbCreate;
+  el('btnJoinView').textContent=t.lbJoinView;
+  el('btnJoin').textContent=t.lbJoin;
+  el('btnBack1').textContent=t.lbBack;
+  el('btnCancel').textContent=t.lbCancel;
+  el('lbCodeCap').textContent=t.lbCodeCap;
+  el('waitTxt').textContent=t.lbWaiting;
+  el('lbHint').textContent=t.lbHintTxt;
+  el('lbSizeCap').textContent=t.lbSize;
+  var sn=el('staticNote');
+  if(sn && !sn.hidden) sn.textContent=t.staticNote;
+}
+
+
+init();
+applyLang();
+applyLobbyLang();
+openLobby();
+probeServer();
+</script>
+</body>
+</html>
