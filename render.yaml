@@ -1,0 +1,11 @@
+# Optional Render.com blueprint — lets Render configure the service automatically.
+services:
+  - type: web
+    name: dandelions
+    runtime: node
+    plan: free
+    buildCommand: ""
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
