@@ -1,7 +1,7 @@
 {
-  "name": "karahindiba-dandelions",
+  "name": "dandelions",
   "version": "1.0.0",
-  "description": "Karahindiba / Dandelions — iki kisilik online tahta oyunu (bagimliliksiz Node.js sunucu)",
+  "description": "Dandelions - a two-player online board game with a dependency-free Node.js server",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {

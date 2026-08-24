@@ -167,6 +167,8 @@ There is nothing to do by hand.
 | "Room not found" | The service may have just woken up. Refresh the page and create a new room. Rooms are also deleted automatically after 2 hours. |
 | Your friend sees "Room is full" | Two people are already in that room. Create a new one. |
 | Nothing happens when the code is entered | Codes are 6 characters, uppercase letters and digits only. Easily confused characters (I, O, 1, 0) are never used. |
+| GitHub Pages returns 404 even though the build is green | You are almost certainly opening the wrong address. Go to **Settings → Pages** and click **Visit site** in the green box instead of typing the URL. Renaming the repository changes the address. |
+| GitHub Pages 404, and `docs/index.html` is missing on GitHub | Drag-and-drop skipped it. Re-upload, or use **Add file → Upload files** and drop `index.html` on its own. |
 
 ---
 
@@ -194,13 +196,13 @@ you can skip Render entirely and publish straight from GitHub. It takes about a 
 3. In the left sidebar, click **Pages**.
 4. Under **Source**, choose **Deploy from a branch**.
 5. Set **Branch** to `main` and the folder to **`/docs`**, then click **Save**.
-6. Wait a minute, then refresh the page. A link appears at the top, something like:
+6. Wait a minute, then refresh the page. A green box appears at the top saying
+   "Your site is live at …".
 
-```
-https://yourusername.github.io/dandelions/
-```
-
-That link is the game. Share it with anyone.
+**Use the link in that green box — click "Visit site" rather than typing the address
+yourself.** The URL contains your exact repository name, and guessing it wrong is the
+most common reason for a 404. If you rename the repository later, the address changes
+with it.
 
 > **If the Pages build fails** (a red X on "pages build and deployment", with a Jekyll
 > error in the log): GitHub tries to run your files through Jekyll, a blog engine this

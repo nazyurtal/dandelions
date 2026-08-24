@@ -1,17 +1,17 @@
 'use strict';
 /**
- * Karahindiba / Dandelions — güvenli 2 kişilik online sunucu
- * Bağımlılık yok: sadece Node.js yerleşik modülleri.
+ * Dandelions — secure two-player online server.
+ * No dependencies: Node.js built-in modules only.
  *
- * Güvenlik yaklaşımı:
- *  - Sunucu HAKEMDİR. Tüm oyun kuralları burada doğrulanır; istemciye güvenilmez.
- *  - Her oyuncuya kriptografik rastgele gizli jeton verilir; her istekte zorunlu.
- *  - Jeton karşılaştırmaları timingSafeEqual ile yapılır.
- *  - Bir odada en fazla 2 oyuncu; 3. kişi kesin olarak reddedilir.
- *  - Oda kodu tahminine karşı hız sınırı + IP başına genel hız sınırı.
- *  - Gövde boyutu, tip ve aralık doğrulaması; JSON dışına çıkılamaz.
- *  - Güvenlik başlıkları (CSP, nosniff, frame-deny, referrer, permissions).
- *  - Veri yalnızca bellekte; kişisel veri toplanmaz; odalar TTL ile silinir.
+ * Security model:
+ *  - The server is the REFEREE. Every rule is validated here; the client is never trusted.
+ *  - Each player gets a cryptographically random secret token, required on every request.
+ *  - Token comparisons use timingSafeEqual.
+ *  - A room holds at most 2 players; a third is firmly rejected.
+ *  - Rate limiting against room-code guessing, plus a general per-IP limit.
+ *  - Body size, type and range validation; nothing outside JSON is accepted.
+ *  - Security headers (CSP, nosniff, frame-deny, referrer, permissions).
+ *  - Data lives in memory only; no personal data is collected; rooms expire via TTL.
  */
 
 const http = require('http');
@@ -22,23 +22,23 @@ const path = require('path');
 const PORT = Number(process.env.PORT) || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
 
-// ---------- ayarlar ----------
-const SIZES = [4, 5, 6];              // izin verilen tahta boyutları
-const DEFAULT_SIZE = 4;               // varsayılan
-const MAX_PLAYERS = 2;                // odada en fazla 2 kişi
-const ROOM_TTL_MS = 2 * 60 * 60 * 1000;   // 2 saat sonra oda silinir
-const EMPTY_ROOM_TTL_MS = 10 * 60 * 1000; // kimse bağlı değilse 10 dk
-const MAX_BODY = 2 * 1024;            // istek gövdesi üst sınırı (byte)
-const MAX_ROOMS = 500;                // toplam oda üst sınırı (bellek koruması)
+// ---------- settings ----------
+const SIZES = [4, 5, 6];              // allowed board sizes
+const DEFAULT_SIZE = 4;               // default
+const MAX_PLAYERS = 2;                // at most 2 players per room
+const ROOM_TTL_MS = 2 * 60 * 60 * 1000;   // rooms are deleted after 2 hours
+const EMPTY_ROOM_TTL_MS = 10 * 60 * 1000; // 10 min with nobody connected
+const MAX_BODY = 2 * 1024;            // max request body size in bytes
+const MAX_ROOMS = 500;                // total room cap (memory guard)
 
-// hız sınırları
+// rate limits
 const RATE_WINDOW_MS = 60 * 1000;
-const RATE_MAX_REQUESTS = 240;        // IP başına dakikada istek
+const RATE_MAX_REQUESTS = 240;        // requests per IP per minute
 const JOIN_FAIL_WINDOW_MS = 10 * 60 * 1000;
-const JOIN_FAIL_MAX = 10;             // IP başına 10 dk'da hatalı oda kodu denemesi
+const JOIN_FAIL_MAX = 10;             // failed join attempts per IP per 10 min
 
-// ---------- yardımcılar ----------
-const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // karışan harfler (I,L,O,0,1) yok
+// ---------- helpers ----------
+const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no confusable characters (I,L,O,0,1)
 
 function makeRoomCode() {
   const bytes = crypto.randomBytes(6);
@@ -56,13 +56,13 @@ function safeEqual(a, b) {
   return crypto.timingSafeEqual(ab, bb);
 }
 function clientIp(req) {
-  // Ters proxy arkasındaysa X-Forwarded-For'un ilk değeri (proxy'ye güveniliyorsa).
+  // Behind a reverse proxy, use the first X-Forwarded-For value (if the proxy is trusted).
   const xf = req.headers['x-forwarded-for'];
   if (typeof xf === 'string' && xf.length < 200) return xf.split(',')[0].trim();
   return req.socket.remoteAddress || 'unknown';
 }
 
-// ---------- hız sınırlama ----------
+// ---------- rate limiting ----------
 const rate = new Map();      // ip -> {count, resetAt}
 const joinFails = new Map(); // ip -> {count, resetAt}
 
@@ -86,7 +86,7 @@ function noteJoinFail(ip) {
   r.count++;
 }
 
-// ---------- oyun mantığı (HAKEM) ----------
+// ---------- game logic (REFEREE) ----------
 const DIRS = [
   { dr: -1, dc: -1 }, { dr: -1, dc: 0 }, { dr: -1, dc: 1 },
   { dr: 0, dc: -1 },  null,             { dr: 0, dc: 1 },
@@ -97,13 +97,13 @@ function newGame(n) {
   const N = n;
   return {
     n: N,
-    grid: Array.from({ length: N }, () => Array(N).fill(0)), // 0 boş, 1 tohum, 2 çiçek
+    grid: Array.from({ length: N }, () => Array(N).fill(0)), // 0 empty, 1 seed, 2 flower
     blooms: [],
-    used: [],          // kullanılmış yön indeksleri
-    turn: 'b',         // 'b' = karahindiba, 'w' = rüzgâr
+    used: [],          // direction indices already used
+    turn: 'b',         // 'b' = dandelions, 'w' = wind
     over: false,
     winner: null,      // 'bloom' | 'wind'
-    lastEvent: null,   // {type:'plant'|'wind', ...} — istemci animasyonu için
+    lastEvent: null,   // {type:'plant'|'wind', ...} — drives client animation
     version: 0,
   };
 }
@@ -166,7 +166,7 @@ function applyWind(g, dirIndex) {
   return { ok: true };
 }
 
-// ---------- oda yönetimi ----------
+// ---------- room management ----------
 const rooms = new Map(); // code -> room
 
 function createRoom(size) {
@@ -208,7 +208,7 @@ function broadcast(room) {
   for (const p of room.players) {
     if (!p.res || p.res.writableEnded) continue;
     const payload = JSON.stringify(publicState(room, p.token));
-    try { p.res.write(`data: ${payload}\n\n`); } catch { /* bağlantı kopmuş */ }
+    try { p.res.write(`data: ${payload}\n\n`); } catch { /* connection dropped */ }
   }
 }
 function cleanupRooms() {
@@ -227,7 +227,7 @@ function cleanupRooms() {
 }
 setInterval(cleanupRooms, 60 * 1000).unref();
 
-// ---------- HTTP yardımcıları ----------
+// ---------- HTTP helpers ----------
 function securityHeaders(res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -276,8 +276,8 @@ function findPlayer(room, token) {
   return room.players.find(p => safeEqual(p.token, token)) || null;
 }
 
-// ---------- statik dosyalar ----------
-// 'docs' klasörü hem bu sunucu hem GitHub Pages tarafından sunulabilir
+// ---------- static files ----------
+// the 'docs' folder can be served both by this server and by GitHub Pages
 const PUBLIC_DIR = path.join(__dirname, 'docs');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
                '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
@@ -287,7 +287,7 @@ function serveStatic(req, res) {
   let rel = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (rel === '/') rel = '/index.html';
   const filePath = path.join(PUBLIC_DIR, rel);
-  // dizin dışına çıkışı engelle
+  // block path traversal
   if (!filePath.startsWith(PUBLIC_DIR + path.sep)) { sendJson(res, 403, { error: 'forbidden' }); return; }
   fs.readFile(filePath, (err, data) => {
     if (err) { sendJson(res, 404, { error: 'not_found' }); return; }
@@ -301,25 +301,25 @@ function serveStatic(req, res) {
   });
 }
 
-// ---------- yönlendirme ----------
+// ---------- routing ----------
 const server = http.createServer(async (req, res) => {
   const ip = clientIp(req);
   const url = new URL(req.url, 'http://x');
 
   if (rateLimited(ip)) return sendJson(res, 429, { error: 'rate_limited' });
 
-  // API dışı her şey statik
+  // everything outside /api is static
   if (!url.pathname.startsWith('/api/')) {
     if (req.method !== 'GET') return sendJson(res, 405, { error: 'method_not_allowed' });
     return serveStatic(req, res);
   }
 
-  // --- sunucu var mı? (istemci online modu buna göre gösterir) ---
+  // --- health check: the client uses this to decide whether online play is available ---
   if (url.pathname === '/api/health' && req.method === 'GET') {
     return sendJson(res, 200, { ok: true, maxPlayers: MAX_PLAYERS, sizes: SIZES });
   }
 
-  // --- SSE akışı ---
+  // --- SSE stream ---
   if (url.pathname === '/api/events' && req.method === 'GET') {
     const code = url.searchParams.get('room');
     const token = url.searchParams.get('token');
@@ -336,7 +336,7 @@ const server = http.createServer(async (req, res) => {
       'Connection': 'keep-alive',
       'X-Accel-Buffering': 'no',
     });
-    // önceki akışı kapat (tek oturum)
+    // close any previous stream (single session per player)
     if (player.res && !player.res.writableEnded) { try { player.res.end(); } catch {} }
     player.res = res;
     player.connected = true;
@@ -363,7 +363,7 @@ const server = http.createServer(async (req, res) => {
   try { body = await readBody(req); }
   catch (e) { return sendJson(res, 400, { error: e.message === 'body_too_large' ? 'body_too_large' : 'bad_json' }); }
 
-  // --- oda oluştur ---
+  // --- create room ---
   if (url.pathname === '/api/create') {
     const size = Number(body.size);
     const room = createRoom(size);
@@ -373,7 +373,7 @@ const server = http.createServer(async (req, res) => {
     return sendJson(res, 200, { code: room.code, token, youAre: 'bloom' });
   }
 
-  // --- odaya katıl ---
+  // --- join room ---
   if (url.pathname === '/api/join') {
     if (joinBlocked(ip)) return sendJson(res, 429, { error: 'too_many_attempts' });
     const code = typeof body.code === 'string' ? body.code.trim().toUpperCase() : '';
@@ -389,7 +389,7 @@ const server = http.createServer(async (req, res) => {
     return sendJson(res, 200, { code: room.code, token, youAre: 'wind' });
   }
 
-  // --- hamle ---
+  // --- move ---
   if (url.pathname === '/api/move') {
     const code = typeof body.code === 'string' ? body.code.toUpperCase() : '';
     const token = body.token;
@@ -418,7 +418,7 @@ const server = http.createServer(async (req, res) => {
     return sendJson(res, 200, { ok: true });
   }
 
-  // --- yeniden başlat (iki oyuncu da odada olmalı) ---
+  // --- restart (both players must be in the room) ---
   if (url.pathname === '/api/restart') {
     const code = typeof body.code === 'string' ? body.code.toUpperCase() : '';
     const token = body.token;
